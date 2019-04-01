@@ -1,0 +1,61 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eventing-sources-rabbitmq-controller
+rules:
+
+  - apiGroups:
+      - sources.eventing.knative.dev
+    resources:
+      - rabbitmqsources
+      - services
+    verbs: &everything
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+  - apiGroups:
+      - sources.eventing.knative.dev
+    resources:
+      - rabbitmqsources/status
+      - services
+    verbs:
+      - get
+      - update
+      - patch
+
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs: *everything
+
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+      - endpoints
+      - persistentvolumeclaims
+      - events
+      - configmaps
+      - secrets
+    verbs: *everything
+
+  - apiGroups:
+      - eventing.knative.dev
+    resources:
+      - channels
+      - services
+    verbs: *everything
+
+  - apiGroups:
+      - serving.knative.dev
+    resources:
+      - services
+      - routes
+    verbs: *everything

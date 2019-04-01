@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-controller
+  namespace: knative-sources
+  labels:
+    control-plane: rabbitmq-controller-manager
+spec:
+  selector:
+    control-plane: rabbitmq-controller-manager
+  ports:
+    - port: 443

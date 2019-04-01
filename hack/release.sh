@@ -25,6 +25,7 @@ COMPONENTS=(
   ["camel.yaml"]="contrib/camel/config"
   ["kafka.yaml"]="contrib/kafka/config"
   ["awssqs.yaml"]="contrib/awssqs/config"
+  ["rabbitmq.yaml"]="contrib/rabbitmq/config"
 )
 readonly COMPONENTS
 

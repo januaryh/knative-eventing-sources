@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq-controller-manager
+  namespace: knative-sources
+  labels:
+    control-plane: rabbitmq-controller-manager
+spec:
+  selector:
+    matchLabels: &labels
+      control-plane: rabbitmq-controller-manager
+  serviceName: rabbitmq-controller-manager
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      serviceAccountName: rabbitmq-controller-manager
+      containers:
+        - name: manager
+          image: github.com/knative/eventing-sources/contrib/rabbitmq/cmd/controller
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: RABBITMQ_RA_IMAGE
+              value: github.com/knative/eventing-sources/contrib/rabbitmq/cmd/receive_adapter
+          volumeMounts:
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 20m
+              memory: 20Mi
+      serviceAccount: rabbitmq-controller-manager
+      terminationGracePeriodSeconds: 10
