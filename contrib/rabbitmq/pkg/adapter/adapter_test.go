@@ -19,9 +19,12 @@ package rabbitmq
 import (
 	"context"
 	"encoding/json"
+	"github.com/sbcd90/wabbit/amqp"
+	origamqp "github.com/streadway/amqp"
+	"github.com/sbcd90/wabbit/amqptest"
+	"github.com/sbcd90/wabbit/amqptest/server"
 	"github.com/cloudevents/sdk-go/pkg/cloudevents/client"
 	"github.com/knative/eventing-sources/pkg/kncloudevents"
-	"github.com/streadway/amqp"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -84,7 +87,8 @@ func TestPostMessage_ServeHttp(t *testing.T) {
 				t.Errorf("unexpected error, %v", err)
 			}
 
-			m := &amqp.Delivery{
+			m := &amqp.Delivery{}
+			m.Delivery = &origamqp.Delivery{
 				MessageId: "id",
 				Body:      []byte(data),
 			}
@@ -108,6 +112,47 @@ func TestPostMessage_ServeHttp(t *testing.T) {
 				t.Errorf("Expected request body '%q', but got '%q'", tc.reqBody, h.body)
 			}
 		})
+	}
+}
+
+func TestAdapter_StartAmqpClient(t *testing.T) {
+	fakeServer := server.NewServer("amqp://localhost:5672/%2f")
+	err := fakeServer.Start()
+	if err != nil {
+		t.Errorf("%s: %s", "Failed to connect to RabbitMQ", err)
+	}
+
+	conn, err := amqptest.Dial("amqp://localhost:5672/%2f")
+	if err != nil {
+		t.Errorf("%s: %s", "Failed to connect to RabbitMQ", err)
+	}
+
+	channel, err := conn.Channel()
+	if err != nil {
+		t.Errorf("Failed to open a channel")
+	}
+
+	a := &Adapter{
+		Topic:          "",
+		Brokers:        "amqp://localhost:5672/%2f",
+		ExchangeConfig: ExchangeConfig{
+			TypeOf:      "direct",
+			Durable:     true,
+			AutoDeleted: false,
+			Internal:    false,
+			NoWait:      false,
+		},
+		QueueConfig:   QueueConfig{
+			Name:             "",
+			Durable:          false,
+			DeleteWhenUnused: false,
+			Exclusive:        true,
+			NoWait:           false,
+		},
+	}
+	_, err = a.StartAmqpClient(context.TODO(), &channel)
+	if err != nil {
+		t.Errorf("Failed to start RabbitMQ")
 	}
 }
 

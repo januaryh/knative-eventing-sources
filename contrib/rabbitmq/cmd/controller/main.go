@@ -19,6 +19,9 @@ package main
 import (
 	"github.com/knative/eventing-sources/contrib/rabbitmq/pkg/apis"
 	controller "github.com/knative/eventing-sources/contrib/rabbitmq/pkg/reconciler"
+	"github.com/knative/pkg/logging/logkey"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"log"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -28,6 +31,14 @@ import (
 
 func main() {
 	// Get a config to talk to the API server
+	logCfg := zap.NewProductionConfig()
+	logCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger, err := logCfg.Build()
+	logger = logger.With(zap.String(logkey.ControllerType, "rabbitmq-controller"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	cfg, err := config.GetConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +60,7 @@ func main() {
 	log.Printf("Setting up Controller.")
 
 	// Setup Rabbitmq Controller
-	if err := controller.Add(mgr); err != nil {
+	if err := controller.Add(mgr, logger.Sugar()); err != nil {
 		log.Fatal(err)
 	}
 

@@ -719,6 +719,20 @@
   revision = "3113b8401b8a98917cde58f8bbd42a1b1c03b1fd"
 
 [[projects]]
+  branch = "master"
+  digest = "1:411eb89ccb3b3bee839632ce67a618789cc8e597d728f41503b0357678f252bb"
+  name = "github.com/sbcd90/wabbit"
+  packages = [
+    ".",
+    "amqp",
+    "amqptest",
+    "amqptest/server",
+    "utils",
+  ]
+  pruneopts = "NUT"
+  revision = "43bc2261e0e01ff061666ce3885e408ee67817f1"
+
+[[projects]]
   digest = "1:6f3ce746342be7b14a2d1ca33a4a11fd6cb0300e5d34c766f01e19e936fb10af"
   name = "github.com/scylladb/go-set"
   packages = ["strset"]
@@ -1485,7 +1499,10 @@
     "github.com/knative/test-infra/tools/dep-collector",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
-    "github.com/robfig/cron",
+    "github.com/sbcd90/wabbit",
+    "github.com/sbcd90/wabbit/amqp",
+    "github.com/sbcd90/wabbit/amqptest",
+    "github.com/sbcd90/wabbit/amqptest/server",
     "github.com/streadway/amqp",
     "go.opencensus.io/trace",
     "go.uber.org/zap",

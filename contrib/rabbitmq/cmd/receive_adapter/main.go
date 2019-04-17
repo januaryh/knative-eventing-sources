@@ -31,7 +31,11 @@ import (
 const (
 	envBrokers             = "RABBITMQ_BROKERS"
 	envTopic               = "RABBITMQ_TOPIC"
+	envUser                = "RABBITMQ_USER"
+	envPassword            = "RABBITMQ_PASSWORD"
 	envRoutingKey          = "RABBITMQ_ROUTING_KEY"
+	envPrefetchCount       = "RABBITMQ_CHANNEL_CONFIG_PREFETCH_COUNT"
+	envGlobalQos           = "RABBITMQ_CHANNEL_CONFIG_QOS_GLOBAL"
         envExchangeName        = "RABBITMQ_EXCHANGE_CONFIG_NAME"
 	envExchangeType        = "RABBITMQ_EXCHANGE_CONFIG_TYPE"
 	envExchangeDurable     = "RABBITMQ_EXCHANGE_CONFIG_DURABLE"
@@ -53,6 +57,18 @@ func getRequiredEnv(key string) string {
 	}
 
 	return val
+}
+
+func getOptionalIntEnv(key string) int {
+	if val, defined := os.LookupEnv(key); defined {
+		if res, err := strconv.ParseInt(val, 10, 32); err != nil {
+			log.Fatalf("A value of '%s' cannot be parsed as a int value.", val)
+		} else {
+			return int(res)
+		}
+	}
+
+	return 0
 }
 
 func getOptionalBoolEnv(key string) bool {
@@ -86,8 +102,14 @@ func main() {
 	}
 
 	adapter := &rabbitmq.Adapter{
-		Brokers: getRequiredEnv(envBrokers),
-		Topic:   getRequiredEnv(envTopic),
+		Brokers:  getRequiredEnv(envBrokers),
+		Topic:    getRequiredEnv(envTopic),
+		User:     os.Getenv(envUser),
+		Password: os.Getenv(envPassword),
+		ChannelConfig: rabbitmq.ChannelConfig{
+			PrefetchCount: getOptionalIntEnv(envPrefetchCount),
+			GlobalQos:     getOptionalBoolEnv(envGlobalQos),
+		},
 		ExchangeConfig: rabbitmq.ExchangeConfig{
                         Name:        getOptionalEnv(envExchangeName),
 			TypeOf:      getRequiredEnv(envExchangeType),

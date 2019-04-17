@@ -3,8 +3,16 @@ kind: RabbitmqSource
 metadata:
   name: rabbitmq-source
 spec:
-  brokers: "amqp://guest:guest@rabbitmq:5672/"
+  brokers: "rabbitmq:5672/"
   topic: ""
+  user:
+    secretKeyRef:
+      name: "rabbitmq-source-key"
+      key: "user"
+    password:
+      secretKeyRef:
+        name: "rabbitmq-source-key"
+        key: "password"
   exchange_config:
     type: "fanout"
     durable: true

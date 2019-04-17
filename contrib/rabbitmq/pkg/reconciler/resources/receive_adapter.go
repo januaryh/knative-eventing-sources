@@ -34,6 +34,90 @@ type ReceiveAdapterArgs struct {
 
 func MakeReceiveAdapter(args *ReceiveAdapterArgs) *v1.Deployment {
 	replicas := int32(1)
+
+	env := []corev1.EnvVar{
+		{
+			Name:  "RABBITMQ_BROKERS",
+			Value: args.Source.Spec.Brokers,
+		},
+		{
+			Name:  "RABBITMQ_TOPIC",
+			Value: args.Source.Spec.Topic,
+		},
+		{
+			Name: "RABBITMQ_USER",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: args.Source.Spec.User.SecretKeyRef,
+			},
+		},
+		{
+			Name: "RABBITMQ_PASSWORD",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: args.Source.Spec.Password.SecretKeyRef,
+			},
+		},
+		{
+			Name:  "RABBITMQ_ROUTING_KEY",
+			Value: args.Source.Spec.QueueConfig.RoutingKey,
+		},
+		{
+			Name:  "RABBITMQ_CHANNEL_CONFIG_PREFETCH_COUNT",
+			Value: strconv.Itoa(args.Source.Spec.ChannelConfig.PrefetchCount),
+		},
+		{
+			Name:  "RABBITMQ_CHANNEL_CONFIG_QOS_GLOBAL",
+			Value: strconv.FormatBool(args.Source.Spec.ChannelConfig.GlobalQos),
+		},
+		{
+			Name:  "RABBITMQ_EXCHANGE_CONFIG_NAME",
+			Value: args.Source.Spec.ExchangeConfig.Name,
+		},
+		{
+			Name:  "RABBITMQ_EXCHANGE_CONFIG_TYPE",
+			Value: args.Source.Spec.ExchangeConfig.TypeOf,
+		},
+		{
+			Name: "RABBITMQ_EXCHANGE_CONFIG_DURABLE",
+			Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.Durable),
+		},
+		{
+			Name: "RABBITMQ_EXCHANGE_CONFIG_AUTO_DELETED",
+			Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.AutoDeleted),
+		},
+		{
+			Name: "RABBITMQ_EXCHANGE_CONFIG_INTERNAL",
+			Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.Internal),
+		},
+		{
+			Name: "RABBITMQ_EXCHANGE_CONFIG_NOWAIT",
+			Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.NoWait),
+		},
+		{
+			Name: "RABBITMQ_QUEUE_CONFIG_NAME",
+			Value: args.Source.Spec.QueueConfig.Name,
+		},
+		{
+			Name: "RABBITMQ_QUEUE_CONFIG_DURABLE",
+			Value: strconv.FormatBool(args.Source.Spec.QueueConfig.Durable),
+		},
+		{
+			Name: "RABBITMQ_QUEUE_CONFIG_AUTO_DELETED",
+			Value: strconv.FormatBool(args.Source.Spec.QueueConfig.DeleteWhenUnused),
+		},
+		{
+			Name: "RABBITMQ_QUEUE_CONFIG_EXCLUSIVE",
+			Value: strconv.FormatBool(args.Source.Spec.QueueConfig.Exclusive),
+		},
+		{
+			Name: "RABBITMQ_QUEUE_CONFIG_NOWAIT",
+			Value: strconv.FormatBool(args.Source.Spec.QueueConfig.NoWait),
+		},
+		{
+			Name: "SINK_URI",
+			Value: args.SinkURI,
+		},
+	}
+
 	return &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:    args.Source.Namespace,
@@ -59,68 +143,7 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) *v1.Deployment {
 							Name:  "receive-adapter",
 							Image: args.Image,
 							ImagePullPolicy: "IfNotPresent",
-							Env: []corev1.EnvVar{
-								{
-									Name:  "RABBITMQ_BROKERS",
-									Value: args.Source.Spec.Brokers,
-								},
-								{
-									Name:  "RABBITMQ_TOPIC",
-									Value: args.Source.Spec.Topic,
-								},
-								{
-									Name:  "RABBITMQ_ROUTING_KEY",
-									Value: args.Source.Spec.QueueConfig.RoutingKey,
-								},
-								{
-									Name:  "RABBITMQ_EXCHANGE_CONFIG_NAME",
-									Value: args.Source.Spec.ExchangeConfig.Name,
-								},
-								{
-									Name:  "RABBITMQ_EXCHANGE_CONFIG_TYPE",
-									Value: args.Source.Spec.ExchangeConfig.TypeOf,
-								},
-								{
-									Name: "RABBITMQ_EXCHANGE_CONFIG_DURABLE",
-									Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.Durable),
-								},
-								{
-									Name: "RABBITMQ_EXCHANGE_CONFIG_AUTO_DELETED",
-									Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.AutoDeleted),
-								},
-								{
-									Name: "RABBITMQ_EXCHANGE_CONFIG_INTERNAL",
-									Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.Internal),
-								},
-								{
-									Name: "RABBITMQ_EXCHANGE_CONFIG_NOWAIT",
-									Value: strconv.FormatBool(args.Source.Spec.ExchangeConfig.NoWait),
-								},
-								{
-									Name: "RABBITMQ_QUEUE_CONFIG_NAME",
-									Value: args.Source.Spec.QueueConfig.Name,
-								},
-								{
-									Name: "RABBITMQ_QUEUE_CONFIG_DURABLE",
-									Value: strconv.FormatBool(args.Source.Spec.QueueConfig.Durable),
-								},
-								{
-									Name: "RABBITMQ_QUEUE_CONFIG_AUTO_DELETED",
-									Value: strconv.FormatBool(args.Source.Spec.QueueConfig.DeleteWhenUnused),
-								},
-								{
-									Name: "RABBITMQ_QUEUE_CONFIG_EXCLUSIVE",
-									Value: strconv.FormatBool(args.Source.Spec.QueueConfig.Exclusive),
-								},
-								{
-									Name: "RABBITMQ_QUEUE_CONFIG_NOWAIT",
-									Value: strconv.FormatBool(args.Source.Spec.QueueConfig.NoWait),
-								},
-								{
-									Name: "SINK_URI",
-									Value: args.SinkURI,
-								},
-							},
+							Env: env,
 						},
 					},
 				},

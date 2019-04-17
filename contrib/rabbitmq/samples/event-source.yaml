@@ -5,6 +5,17 @@ metadata:
 spec:
   brokers: RABBITMQ_BROKERS
   topic: RABBITMQ_TOPIC
+  user:
+    secretKeyRef:
+      name: RABBITMQ_USER
+      key: RABBITMQ_USER
+  password:
+    secretKeyRef:
+      name: RABBITMQ_PASSWORD
+      key: RABBITMQ_PASSWORD
+  channel_config:
+    prefetch_count: RABBITMQ_CHANNEL_CONFIG_PREFETCH_COUNT
+    global_qos: RABBITMQ_CHANNEL_CONFIG_QOS_GLOBAL
   exchange_config:
     name: RABBITMQ_EXCHANGE_CONFIG_NAME
     type: RABBITMQ_EXCHANGE_CONFIG_TYPE

@@ -20,6 +20,7 @@ import (
 	"github.com/knative/pkg/apis"
 	"github.com/knative/pkg/apis/duck"
 	duckv1alpha1 "github.com/knative/pkg/apis/duck/v1alpha1"
+	sourcesv1alpha1 "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -50,9 +51,6 @@ type RabbitmqChannelConfigSpec struct {
 	// Channel Prefetch count
 	// +optional
 	PrefetchCount int  `json:"prefetch_count,omitempty"`
-	// Channel Prefetch size
-	// +optional
-	PrefetchSize  int  `json:"prefetch_size,omitempty"`
 	// Channel Qos global property
 	// +optional
 	GlobalQos     bool `json:"global_qos,omitempty"`
@@ -112,6 +110,12 @@ type RabbitmqSourceSpec struct {
 	// Topic topic to consume messages from
 	// +required
 	Topic   string `json:"topic,omitempty"`
+	// User for rabbitmq connection
+	// +optional
+	User sourcesv1alpha1.SecretValueFromSource `json:"user,omitempty"`
+	// Password for rabbitmq connection
+	// +optional
+	Password sourcesv1alpha1.SecretValueFromSource `json:"password,omitempty"`
 	// ChannelConfig config for rabbitmq exchange
 	// +optional
 	ChannelConfig  RabbitmqChannelConfigSpec `json:"channel_config,omitempty"`

@@ -32,6 +32,14 @@ spec:
               type: string
             topic:
               type: string
+            user:
+              valueFrom:
+                secretKeyRef:
+                  type: string
+            password:
+              valueFrom:
+                secretKeyRef:
+                  type: string
             routingKey:
               type: string
             exchangeType:

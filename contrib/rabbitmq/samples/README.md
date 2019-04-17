@@ -50,8 +50,43 @@ The following steps build and deploy the Rabbitmq Event Controller, Source, and 
     ```
     
 #### Rabbitmq Event Source
-1. Modify `contrib/rabbitmq/samples/event-source.yaml` accordingly with brokers, topic, routing key etc... 
-2. Configure the event source parameters.
+1. Create a secret named `rabbitmq-source-key` to store rabbitmq broker credentials with following command
+    ```
+    kubectl create secret generic rabbitmq-source-key --from-literal=user=guest --from-literal=password=guest
+    ```
+2. Modify `contrib/rabbitmq/samples/event-source.yaml` accordingly with brokers, topic, routing key etc... 
+3. Configure the event source parameters.
+    - Configure channel config properties based on this documentation.
+    ```
+    Qos controls how many messages or how many bytes the server will try to keep on
+    the network for consumers before receiving delivery acks.  The intent of Qos is
+    to make sure the network buffers stay full between the server and client.
+    
+    With a prefetch count greater than zero, the server will deliver that many
+    messages to consumers before acknowledgments are received.  The server ignores
+    this option when consumers are started with noAck because no acknowledgments
+    are expected or sent.
+    
+    When global is true, these Qos settings apply to all existing and future
+    consumers on all channels on the same connection.  When false, the Channel.Qos
+    settings will apply to all existing and future consumers on this channel.
+    
+    Please see the RabbitMQ Consumer Prefetch documentation for an explanation of
+    how the global flag is implemented in RabbitMQ, as it differs from the
+    AMQP 0.9.1 specification in that global Qos settings are limited in scope to
+    channels, not connections (https://www.rabbitmq.com/consumer-prefetch.html).
+    
+    To get round-robin behavior between consumers consuming from the same queue on
+    different connections, set the prefetch count to 1, and the next available
+    message on the server will be delivered to the next available consumer.
+    
+    If your consumer work time is reasonably consistent and not much greater
+    than two times your network round trip time, you will see significant
+    throughput improvements starting with a prefetch count of 2 or slightly
+    greater as described by benchmarks on RabbitMQ.
+    
+    http://www.rabbitmq.com/blog/2012/04/25/rabbitmq-performance-measurements-part-2/
+    ```
     - Configure exchange config properties based on this documentation.
     ```
     Exchange names starting with "amq." are reserved for pre-declared and
@@ -134,19 +169,19 @@ The following steps build and deploy the Rabbitmq Event Controller, Source, and 
     or attempting to modify an existing queue from a different connection.
     ```
     - A sample example is available [here](example/event-source-example.yaml).
-2. Build and deploy the event source.
+4. Build and deploy the event source.
     ```
     $ ko apply -f contrib/rabbitmq/samples/event-source.yaml
     ...
     rabbitmqsource.sources.eventing.knative.dev/rabbitmq-source created
     ```
-3. Check that the event source pod is running. The pod name will be prefixed with `rabbitmq-source`.
+5. Check that the event source pod is running. The pod name will be prefixed with `rabbitmq-source`.
     ```
     $ kubectl get pods
     NAME                                  READY     STATUS    RESTARTS   AGE
     rabbitmq-source-xlnhq-5544766765-dnl5s   1/1       Running   0          40m
     ```
-4.  Ensure the Rabbitmq Event Source started with the necessary configuration.
+6.  Ensure the Rabbitmq Event Source started with the necessary configuration.
     ```
     $ kubectl logs rabbitmq-source-xlnhq-5544766765-dnl5s
     {"level":"info","ts":"2019-04-09T23:09:59.156Z","caller":"receive_adapter/main.go:112","msg":"Starting Rabbitmq Receive Adapter...","adapter":{"Brokers":"amqp://guest:guest@rabbitmq:5672/","Topic":"","ExchangeConfig":{"Name":"","TypeOf":"fanout","Durable":true,"AutoDeleted":false,"Internal":false,"NoWait":false},"QueueConfig":{"Name":"","RoutingKey":"","Durable":false,"DeleteWhenUnused":false,"Exclusive":false,"NoWait":false},"SinkURI":"http://event-display.default.svc.cluster.local/"}}
