@@ -6,9 +6,9 @@ def CREDENTIALS_GITHUB = 'jenkins-github'
 
 def DOCKER_REGISTRY = 'docker.appdirect.tools'
 def IMAGE_NAME = 'appdirect-knative-rabbitmq-event'
-def PROJECT_DIR = 'knative-eventing-source'
+def PROJECT_DIR = 'knative-eventing-sources'
 def CREDENTIALS_DOCKER_RW = 'docker-rw'
-def path_to_version = "src/github.com/AppDirect/knative-eventing-source"
+def path_to_version = "src/github.com/AppDirect/knative-eventing-sources"
 def VERSION = "0.5.0"
 
 def ciImage
