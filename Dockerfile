@@ -10,7 +10,7 @@ RUN apk add git
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 RUN go get github.com/google/ko/cmd/ko
 
-ARG KO_DOCKER_REPO=ko.local
+ARG KO_DOCKER_REPO=docker.appdirect.tools/knative-eventing
 ENV KO_DOCKER_REPO=$KO_DOCKER_REPO
 
 WORKDIR $GOPATH/src/github.com/knative/eventing-sources
