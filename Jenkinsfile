@@ -75,7 +75,7 @@ pipeline {
                         ]) {
                             echo 'Docker Registry Login'
                             sh "docker login --username ${DOCKER_RW_USER} --password ${DOCKER_RW_PASSWD} ${DOCKER_REGISTRY}"
-                            sh "ko resolve $GOPATH/src/github.com/knative/eventing-sources/contrib/kafka/config"  // This have to be change to rabbitmq when this will be merge
+                            sh "ko resolve -f $GOPATH/src/github.com/knative/eventing-sources/contrib/kafka/config"  // This have to be change to rabbitmq when this will be merge
                         }
                     }
                 }
